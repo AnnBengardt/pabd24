@@ -31,7 +31,7 @@ def main(args):
     main_dataframe['url_id'] = main_dataframe['url'].map(lambda x: x.split('/')[-2])
     new_dataframe = main_dataframe[['url_id', 'total_meters', 'price']].set_index('url_id')
 
-    new_df = new_dataframe[new_dataframe['price'] < 30_000_000]
+    new_df = new_dataframe[new_dataframe['price'] < 30_000_000].sample(frac=1)
 
     border = int(args.split * len(new_df))
     train_df, val_df = new_df[0:border], new_df[border:-1]
