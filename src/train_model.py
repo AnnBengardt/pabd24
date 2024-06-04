@@ -27,7 +27,7 @@ def main(args):
     logger.info(f'Saved to {args.model}')
 
     r2 = linear_model.score(x_train, y_train)
-    os.system("C:/Users/232550/PycharmProjects/pabd24/venv/Scripts/python.exe src/test_model.py")
+    #os.system("C:/Users/232550/PycharmProjects/pabd24/venv/Scripts/python.exe src/test_model.py")
 
     logger.info(f'R2 = {r2:.3f}')
 
