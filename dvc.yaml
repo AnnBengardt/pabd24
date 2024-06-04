@@ -1,0 +1,7 @@
+stages:
+  preprocess:
+    cmd: python src/preprocess_data.py -s 0.8
+  train_model:
+    cmd: python src/train_model.py -m models/linear_regression_v01.joblib
+  test_model:
+    cmd: python src/test_model.py -m models/linear_regression_v01.joblib
