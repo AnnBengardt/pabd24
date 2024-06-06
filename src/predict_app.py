@@ -53,7 +53,7 @@ def predict(in_data: dict) -> int:
     :return: House price, RUB.
     :rtype: int
     """
-    area = float(in_data['area'])
+    area = float(in_data['total_meters'])
     model = load(MODEL_PATH)
     c = int(model.coef_[0])
     inter = int(model.intercept_)

@@ -18,7 +18,7 @@ MODEL_PATH = 'models/linear_regression_v01.joblib'
 
 def main(args):
     df_val = pd.read_csv(VAL_DATA)
-    x_val = df_val[['total_meters']]
+    x_val = df_val.drop(columns=["price", "url_id"])
     y_val = df_val['price']
 
     linear_model = load(args.model)
@@ -26,10 +26,11 @@ def main(args):
 
     y_pred = linear_model.predict(x_val)
     mae = mean_absolute_error(y_pred, y_val)
-    c = int(linear_model.coef_[0])
-    inter = int(linear_model.intercept_)
+    #c = int(linear_model.coef_[0])
+   # inter = int(linear_model.intercept_)
 
-    logger.info(f'MAE = {mae:.0f}     Price = {c} * area + {inter}')
+   # logger.info(f'MAE = {mae:.0f}     Price = {c} * area + {inter}')
+    logger.info(f'MAE = {mae:.0f}')
 
 
 

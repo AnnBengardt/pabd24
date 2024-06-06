@@ -2,6 +2,7 @@
 import argparse
 import logging
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -13,7 +14,10 @@ logging.basicConfig(
 
 IN_FILES = ['data/raw/1_2024-05-14_20-14.csv',
             'data/raw/2_2024-05-14_20-31.csv',
-            'data/raw/3_2024-05-14_20-49.csv']
+            'data/raw/3_2024-05-14_20-49.csv',
+            'data/raw/1_2024-06-05_21-35.csv',
+            'data/raw/2_2024-06-05_21-39.csv',
+            'data/raw/3_2024-06-05_21-48.csv']
 
 OUT_TRAIN = 'data/proc/train.csv'
 OUT_VAL = 'data/proc/val.csv'
@@ -29,9 +33,24 @@ def main(args):
         main_dataframe = pd.concat([main_dataframe, df], axis=0)
 
     main_dataframe['url_id'] = main_dataframe['url'].map(lambda x: x.split('/')[-2])
-    new_dataframe = main_dataframe[['url_id', 'total_meters', 'price']].set_index('url_id')
+    new_dataframe = main_dataframe[['url_id', 'total_meters', 'floor','floors_count','rooms_count', 'underground', 'price']].set_index('url_id')
 
     new_df = new_dataframe[new_dataframe['price'] < 30_000_000].sample(frac=1)
+
+    new_df['first_floor'] = new_df['floor'] == 1
+    new_df['last_floor'] = new_df['floor'] == new_df['floors_count']
+    le = LabelEncoder()
+    le.fit(new_df["underground"])
+    new_df["underground"] = le.transform(new_df["underground"])
+    #new_df['underground'] = new_df['underground'] is not None
+
+    df = new_df[['total_meters',
+                        'first_floor',
+                        'last_floor',
+                        'floors_count',
+                        'rooms_count',
+                        'underground',
+                        'price']]
 
     border = int(args.split * len(new_df))
     train_df, val_df = new_df[0:border], new_df[border:-1]

@@ -2,6 +2,7 @@ import argparse
 import logging
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 from joblib import dump
 import os
 
@@ -17,11 +18,12 @@ MODEL_SAVE_PATH = 'models/linear_regression_v01.joblib'
 
 
 def main(args):
+
     df_train = pd.read_csv(TRAIN_DATA)
-    x_train = df_train[['total_meters']]
+    x_train = df_train.drop(columns=["price", "url_id"])
     y_train = df_train['price']
 
-    linear_model = LinearRegression()
+    linear_model = RandomForestRegressor()
     linear_model.fit(x_train, y_train)
     dump(linear_model, args.model)
     logger.info(f'Saved to {args.model}')
