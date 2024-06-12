@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.neighbors import KNeighborsRegressor
 from joblib import dump
 import os
 

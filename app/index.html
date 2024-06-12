@@ -26,6 +26,14 @@ input:valid {
 <form>
   <label for="area">Area, m2:</label><br>
   <input type="number" id="area" name="area" required min="1" max="100" value="44"><br><br>
+  <label for="floor">Floor:</label><br>
+  <input type="number" id="floor" name="floor" required min="1" max="100" value="1"><br><br>
+  <label for="floors_count">Floors in the building:</label><br>
+  <input type="number" id="floors_count" name="floors_count" required min="1" max="100" value="16"><br><br>
+  <label for="rooms">Rooms:</label><br>
+  <input type="number" id="rooms" name="rooms" required min="1" max="10" value="1"><br><br>
+  <label for="underground">Underground name:</label><br>
+  <input type="string" id="underground" name="underground" required><br><br>
   <label for="token">Enter secret token</label><br>
   <input type="string" id="token" name="token" required><br><br>
   <input type="submit" value="Submit" id="submit_btn" >
@@ -50,7 +58,8 @@ input:valid {
       console.log("Valid!");
     }
     let warn = "Wrong connection!";
-    let house_params = {area: area.value};
+    let house_params = {total_meters: area.value, floor: floor.value, floors_count: floors_count.value,
+                        rooms: rooms.value, underground: underground.value};
     postJSON(house_params, token.value).then((response) => {
       const price = response['price'];
       result.innerHTML = price;

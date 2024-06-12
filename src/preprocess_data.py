@@ -3,6 +3,7 @@ import argparse
 import logging
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+import json
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -41,8 +42,14 @@ def main(args):
     new_df['last_floor'] = new_df['floor'] == new_df['floors_count']
     le = LabelEncoder()
     le.fit(new_df["underground"])
+    le_mapping = dict(zip(le.classes_, le.transform(le.classes_)))
+    le_mapping = {k : int(val) for k, val in le_mapping.items()}
     new_df["underground"] = le.transform(new_df["underground"])
     #new_df['underground'] = new_df['underground'] is not None
+
+    out_file = open("data/dicts/underground.json", "w", encoding='utf8')
+    json.dump(le_mapping, out_file, ensure_ascii=False)
+    out_file.close()
 
     df = new_df[['total_meters',
                         'first_floor',
@@ -52,8 +59,8 @@ def main(args):
                         'underground',
                         'price']]
 
-    border = int(args.split * len(new_df))
-    train_df, val_df = new_df[0:border], new_df[border:-1]
+    border = int(args.split * len(df))
+    train_df, val_df = df[0:border], df[border:-1]
     train_df.to_csv(OUT_TRAIN)
     val_df.to_csv(OUT_VAL)
     logger.info(f'Write {args.input} to train.csv and val.csv. Train set size: {args.split}')

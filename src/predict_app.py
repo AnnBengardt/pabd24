@@ -5,11 +5,12 @@ from flask_httpauth import HTTPTokenAuth
 from flask_cors import CORS
 from joblib import load
 from dotenv import dotenv_values
+import json
 
 app = Flask(__name__)
 CORS(app)
 
-MODEL_PATH = 'models/linear_regression_v01.joblib'
+MODEL_PATH = 'models/random_forest_v03.joblib'
 config = dotenv_values(".env")
 auth = HTTPTokenAuth(scheme='Bearer')
 
@@ -23,28 +24,6 @@ def verify_token(token):
         return tokens[token]
 
 
-import time
-import numpy as np
-
-
-def predict_io_bounded(area):
-    """Emulate io delay"""
-    time.sleep(1)
-    avg_price = 200_000                 # RUB / m2
-    return int(area * avg_price)
-
-
-def predict_cpu_bounded(area, n=5_000_000):
-    """Emulate single thread computation"""
-    avg_price = sum([x for x in range(n)]) / n
-    return int(area * avg_price)
-
-
-def predict_cpu_multithread(area, n=5_000_000):
-    """Emulate multi thread computation"""
-    avg_price = np.mean(np.arange(n))
-    return int(area * avg_price)
-
 
 def predict(in_data: dict) -> int:
     """ Predict house price from input data parameters.
@@ -54,11 +33,28 @@ def predict(in_data: dict) -> int:
     :rtype: int
     """
     area = float(in_data['total_meters'])
-    model = load(MODEL_PATH)
-    c = int(model.coef_[0])
-    inter = int(model.intercept_)
+    floor = int(in_data["floor"])
+    floors_count = int(in_data["floors_count"])
+    rooms = int(in_data["rooms"])
+    underground = str(in_data["underground"])
 
-    return c*area+inter
+    floor = floor if floor <= floors_count else floors_count
+    first_floor = floor == 1
+    last_floor = floor == floors_count
+
+    in_file = open("data/dicts/underground.json", "r", encoding='utf8')
+    underground_dict = json.load(in_file)
+    try:
+        underground = underground_dict[underground]
+    except KeyError:
+        underground = underground_dict["NaN"]
+
+    in_file.close()
+
+    model = load(MODEL_PATH)
+    price = model.predict([[area, first_floor, last_floor, floors_count, rooms, underground]])
+
+    return int(price[0])
 
 
 @app.route("/")
