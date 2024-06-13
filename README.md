@@ -101,6 +101,6 @@ http://192.144.13.190:8000/predict
 ### 8. Запуск сервиса через docker
 
 ```sh
-docker run annbengardt/pabd24:latest
+docker run -dp 8000:8000 annbengardt/pabd24:latest
 ```
 
