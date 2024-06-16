@@ -10,7 +10,7 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-MODEL_PATH = 'models/random_forest_v03.joblib'
+MODEL_PATH = 'models/catboost_v02.joblib'
 config = dotenv_values(".env")
 auth = HTTPTokenAuth(scheme='Bearer')
 
@@ -35,32 +35,31 @@ def predict(in_data: dict) -> int:
     area = float(in_data['total_meters'])
     floor = int(in_data["floor"])
     floors_count = int(in_data["floors_count"])
-    rooms = int(in_data["rooms"])
+    rooms = int(in_data["rooms_count"])
     underground = str(in_data["underground"])
+    author_type = str(in_data["author_type"])
 
     floor = floor if floor <= floors_count else floors_count
     first_floor = floor == 1
     last_floor = floor == floors_count
 
-    in_file = open("data/dicts/underground.json", "r", encoding='utf8')
-    underground_dict = json.load(in_file)
-    try:
-        underground = underground_dict[underground]
-    except KeyError:
-        underground = underground_dict["NaN"]
+    #in_file = open("data/dicts/underground.json", "r", encoding='utf8')
+    #underground_dict = json.load(in_file)
+    #try:
+     #   underground = underground_dict[underground]
+    #except KeyError:
+     #   underground = underground_dict["NaN"]
 
-    in_file.close()
+    #in_file.close()
 
     model = load(MODEL_PATH)
-    price = model.predict([[area, first_floor, last_floor, floors_count, rooms, underground]])
-
-    return int(price[0])
-
+    price = model.predict([[area,author_type,first_floor,
+                            last_floor,floor,floors_count,rooms,underground]])
+    return int(price.squeeze())
 
 @app.route("/")
 def home():
     return '<h1>Housing price service.</h1> Use /predict endpoint'
-
 
 @app.route("/predict", methods=['POST'])
 @auth.login_required

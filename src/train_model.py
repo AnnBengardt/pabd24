@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from joblib import dump
 import os
+from catboost import CatBoostRegressor
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -24,7 +25,7 @@ def main(args):
     x_train = df_train.drop(columns=["price", "url_id"])
     y_train = df_train['price']
 
-    linear_model = RandomForestRegressor()
+    linear_model = CatBoostRegressor(cat_features=['author_type', 'underground'])
     linear_model.fit(x_train, y_train)
     dump(linear_model, args.model)
     logger.info(f'Saved to {args.model}')

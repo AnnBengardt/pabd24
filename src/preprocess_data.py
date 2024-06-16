@@ -18,7 +18,10 @@ IN_FILES = ['data/raw/1_2024-05-14_20-14.csv',
             'data/raw/3_2024-05-14_20-49.csv',
             'data/raw/1_2024-06-05_21-35.csv',
             'data/raw/2_2024-06-05_21-39.csv',
-            'data/raw/3_2024-06-05_21-48.csv']
+            'data/raw/3_2024-06-05_21-48.csv',
+            'data/raw/1_2024-06-16_22-02.csv',
+            'data/raw/2_2024-06-16_22-06.csv',
+            'data/raw/3_2024-06-16_22-14.csv']
 
 OUT_TRAIN = 'data/proc/train.csv'
 OUT_VAL = 'data/proc/val.csv'
@@ -34,30 +37,33 @@ def main(args):
         main_dataframe = pd.concat([main_dataframe, df], axis=0)
 
     main_dataframe['url_id'] = main_dataframe['url'].map(lambda x: x.split('/')[-2])
-    new_dataframe = main_dataframe[['url_id', 'total_meters', 'floor','floors_count','rooms_count', 'underground', 'price']].set_index('url_id')
+    new_dataframe = main_dataframe[['url_id', 'author_type', 'total_meters', 'floor','floors_count','rooms_count', 'underground', 'price']].set_index('url_id')
 
     new_df = new_dataframe[new_dataframe['price'] < 30_000_000].sample(frac=1)
 
     new_df['first_floor'] = new_df['floor'] == 1
     new_df['last_floor'] = new_df['floor'] == new_df['floors_count']
-    le = LabelEncoder()
-    le.fit(new_df["underground"])
-    le_mapping = dict(zip(le.classes_, le.transform(le.classes_)))
-    le_mapping = {k : int(val) for k, val in le_mapping.items()}
-    new_df["underground"] = le.transform(new_df["underground"])
+    #le = LabelEncoder()
+    #le.fit(new_df["underground"])
+    #le_mapping = dict(zip(le.classes_, le.transform(le.classes_)))
+    #le_mapping = {k : int(val) for k, val in le_mapping.items()}
+    #new_df["underground"] = le.transform(new_df["underground"])
     #new_df['underground'] = new_df['underground'] is not None
 
-    out_file = open("data/dicts/underground.json", "w", encoding='utf8')
-    json.dump(le_mapping, out_file, ensure_ascii=False)
-    out_file.close()
+    #out_file = open("data/dicts/underground.json", "w", encoding='utf8')
+    #json.dump(le_mapping, out_file, ensure_ascii=False)
+    #out_file.close()
 
-    df = new_df[['total_meters',
+    df = new_df[['total_meters', 'author_type',
                         'first_floor',
                         'last_floor',
+                        'floor',
                         'floors_count',
                         'rooms_count',
                         'underground',
                         'price']]
+    #print(df["author_type"].value_counts())
+    df = df.dropna()
 
     border = int(args.split * len(df))
     train_df, val_df = df[0:border], df[border:-1]
