@@ -8,5 +8,6 @@ boto3
 python-dotenv
 PyGithub
 flask_httpauth
-catboost
+catboost==1.0.4
+numpy==1.21.0
 gunicorn

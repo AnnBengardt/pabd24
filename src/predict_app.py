@@ -6,6 +6,7 @@ from flask_cors import CORS
 from joblib import load
 from dotenv import dotenv_values
 import json
+import catboost
 
 app = Flask(__name__)
 CORS(app)
